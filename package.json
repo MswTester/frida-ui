@@ -1,0 +1,73 @@
+{
+  "name": "frida-ui",
+  "version": "1.0.0",
+  "description": "frida ui reversing &amp; debugging tool",
+  "main": "index.js",
+  "scripts": {
+    "clean": "rm -rf build dist",
+    "build:renderer": "esbuild src/renderer/index.tsx --bundle --minify --sourcemap --outfile=public/renderer.js --define:process.env.NODE_ENV='\"production\"'",
+    "build:main": "electron-builder",
+    "build:frida": "frida-compile src/frida/agent.ts -o public/agent.js -c",
+    "build": "npm run clean && npm run build:renderer && npm run build:frida && npm run build:main",
+    "watch:renderer": "esbuild src/renderer/index.tsx --bundle --sourcemap --outfile=public/renderer.js --define:process.env.NODE_ENV='\"development\"' --watch",
+    "watch:main": "tsc -w -p tsconfig.main.json",
+    "watch:frida": "frida-compile src/frida/agent.ts -o public/agent.js -w",
+    "watch": "concurrently \"npm run watch:renderer\" \"npm run watch:main\" \"npm run watch:frida\"",
+    "start": "electron dist/main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MswTester/frida-ui.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/MswTester/frida-ui/issues"
+  },
+  "homepage": "https://github.com/MswTester/frida-ui#readme",
+  "dependencies": {
+    "electron-store": "^10.0.1",
+    "frida": "^16.6.6",
+    "fs": "^0.0.1-security",
+    "lucide-react": "^0.474.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "styled-components": "^6.1.14"
+  },
+  "devDependencies": {
+    "@types/frida-gum": "^18.7.2",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "concurrently": "^9.1.2",
+    "electron": "^31.4.0",
+    "electron-builder": "^25.1.8",
+    "esbuild": "^0.24.2",
+    "frida-compile": "^16.4.1",
+    "frida-il2cpp-bridge": "^0.9.1",
+    "typescript": "^5.7.3"
+  },
+  "build": {
+    "appId": "com.MswTester.frida-ui",
+    "productName": "Frida UI Tool",
+    "directories": {
+      "output": "dist",
+      "buildResources": "assets"
+    },
+    "files": [
+      "build/**/*"
+    ],
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.developer-tools"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Development"
+    }
+  }
+}

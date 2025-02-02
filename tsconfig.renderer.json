@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "build/renderer",
+    "module": "ESNext",
+    "lib": ["ESNext", "DOM"],
+    "jsx": "react",
+    "allowSyntheticDefaultImports": true
+  },
+  "include": ["src/renderer/**/*.tsx", "src/renderer/**/*.ts"]
+}

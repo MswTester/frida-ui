@@ -1,0 +1,13 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "build/scripts",
+    "target": "ESNext",
+    "module": "ESNext",
+    "strict": true,
+    "noEmitOnError": true,
+    "types": ["frida-gum"],  // Frida API 타입 적용
+    "lib": ["ESNext"]
+  },
+  "include": ["*.ts"]
+}
