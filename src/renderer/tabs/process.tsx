@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Container, Input, Row, Text } from 'renderer/components/ui/primitives';
-import { useGlobal } from 'renderer/contexts/globalContext';
+import { Box, Button, Container, Input, Row } from 'renderer/components/ui/primitives';
+import Switch from 'renderer/components/ui/switch';
 import { attachProcess, getInstalledPackages, getProcessList, spawnProcess } from 'renderer/fridaClient';
 
 const Process = () => {
-    const { log, setLog } = useGlobal();
     const [type, setType] = useState<'process' | 'application'>('process');
     const [processes, setProcesses] = useState<[string, number][]>([]);
     const [applications, setApplications] = useState<[string, string][]>([]);
@@ -17,30 +16,30 @@ const Process = () => {
     }, []);
 
     const handleProcessList = async () => {
+        setProcesses([]);
+        setApplications([]);
         setSelectedProcess(null);
         setSelectedApplication(null);
         setType('process');
-        const [message, processList] = await getProcessList();
-        setLog([...log, message]);
+        const processList = await getProcessList();
         setProcesses(processList);
     }
 
     const handleApplicationList = async () => {
+        setProcesses([]);
+        setApplications([]);
         setSelectedProcess(null);
         setSelectedApplication(null);
         setType('application');
-        const [message, applicationList] = await getInstalledPackages();
-        setLog([...log, message]);
+        const applicationList = await getInstalledPackages();
         setApplications(applicationList);
     }
 
     const handleExecute = async () => {
         if (type === 'process') {
-            const [message] = await attachProcess(selectedProcess!);
-            setLog([...log, message]);
+            await attachProcess(selectedProcess!);
         } else {
-            const [message] = await spawnProcess(selectedApplication!);
-            setLog([...log, message]);
+            await spawnProcess(selectedApplication!);
         }
     }
 
@@ -49,7 +48,7 @@ const Process = () => {
         setSelectedApplication(null);
     }, [search])
 
-    return <Container $rounded='xs' $gap='xs'>
+    return <Container $gap='xs'>
         <Row>
             <Button
                 $rounded='xs 0 0 0'

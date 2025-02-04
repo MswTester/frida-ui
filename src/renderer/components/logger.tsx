@@ -7,6 +7,9 @@ const Logger = () => {
     const containerRef = useRef<HTMLDivElement>(null)
     useEffect(() => {
         containerRef.current?.scrollTo(0, containerRef.current.scrollHeight)
+        window.API.on('log', (_e:any, ...args: string[]) => {
+            setLog([...log, ...args])
+        })
     }, [log])
     return <Box
         $background='#2a2a2a'

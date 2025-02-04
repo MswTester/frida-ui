@@ -2,7 +2,7 @@ import { app, BrowserWindow } from "electron";
 import path from "path";
 import "./ipc-handler";
 
-let mainWindow: BrowserWindow | null = null;
+export let mainWindow: BrowserWindow | null = null;
 
 const createWindow = () => {
     mainWindow = new BrowserWindow({
@@ -18,6 +18,9 @@ const createWindow = () => {
         titleBarOverlay: false
     });
     mainWindow.loadFile(path.join(__dirname, "../public/index.html"));
+    mainWindow.on("closed", () => {
+        mainWindow = null;
+    });
 };
 
 app.whenReady().then(() => {

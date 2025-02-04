@@ -1,73 +1,97 @@
-import { ipcMain } from "electron";
 import * as frida from "frida";
 import { readFileSync } from "fs";
 import path from "path";
+import { mainWindow } from "./main";
+import {Observable} from "./utils/observable";
 
-const log = (...args: any[]) => ipcMain.emit("log", args);
+const log = (...args: any[]) => mainWindow?.webContents.send("log", ...args);
+const emit = (event: string, ...args: any[]) => mainWindow?.webContents.send(event, ...args);
 
 const agentPath = path.join(__dirname, "../public", "agent.js");
 
-let device: frida.Device | null = null;
-let session: frida.Session | null = null;
+let device: Observable<frida.Device | null> = new Observable(null);
+let session: Observable<frida.Session | null> = new Observable(null);
+let agent: Observable<frida.Script | null> = new Observable(null);
 
 // 실행 중인 프로세스 목록 가져오기
-export async function getProcessList(): Promise<[string, [string, number][]]> {
+export async function getProcessList(): Promise<[string, number][]> {
     try {
-        if (!device) device = await frida.getUsbDevice();
-        const processes = await device.enumerateProcesses();
-        return ["[*] Successfully loaded process list.",
-            processes.map((process) => [process.name, process.pid])
-        ];
+        if (!device.value) device.value = await frida.getUsbDevice();
+        const processes = await device.value.enumerateProcesses();
+        log(`[*] Loaded ${processes.length} processes.`);
+        return processes.map((process) => [process.name, process.pid])
     } catch (error) {
-        return ["[*] Failed to load process list.", []];
+        log(`[*] Failed to load process list: ${error}`);
+        return [];
     }
 }
 
 // 설치된 패키지 목록 가져오기
-export async function getInstalledPackages(): Promise<[string, [string, string][]]> {
+export async function getInstalledPackages(): Promise<[string, string][]> {
     try {
-        if (!device) device = await frida.getUsbDevice();
-        const packages = await device.enumerateApplications();
-        return ["[*] Successfully loaded installed packages.",
-            packages.map((pkg) => [pkg.identifier, pkg.name])
-        ];
+        if (!device.value) device.value = await frida.getUsbDevice();
+        const packages = await device.value.enumerateApplications();
+        log(`[*] Loaded ${packages.length} installed packages.`);
+        return packages.map((pkg) => [pkg.identifier, pkg.name])
     } catch (error) {
-        return ["[*] Failed to load installed packages.", []];
+        log(`[*] Failed to load installed packages: ${error}`);
+        return [];
     }
 }
 
 // 실행 중인 프로세스에 Attach
-export async function attachProcess(pid: number): Promise<[string]> {
+export async function attachProcess(pid: number): Promise<void> {
     try {
-        if (!device) device = await frida.getUsbDevice();
-        session = await device.attach(pid);
-        const agent = await session.createScript(readFileSync(agentPath, "utf8"));
-        await agent.load();
-        session?.detached.connect(() => {
-            session = null;
-            return [`[*] Detached from ${pid}`]
+        if (!device.value) device.value = await frida.getUsbDevice();
+        session.value = await device.value.attach(pid);
+        agent.value = await session.value.createScript(readFileSync(agentPath, "utf8"));
+        await agent.value.load();
+        emit("attach", pid);
+        session.value.detached.connect(() => {
+            session.value = null;
+            agent.value = null;
+            emit("detach", pid);
+            log(`[*] Detached from ${pid}`);
         })
-        return [`[*] Attached to ${pid}`]
+        log(`[*] Attached to ${pid}`);
     } catch (error) {
-        return [`[*] Failed to attach to ${pid}: ${error}`]
+        log(`[*] Failed to attach to ${pid}: ${error}`);
     }
 }
 
 // 설치된 패키지 앱을 Spawn 후 후킹
-export async function spawnProcess(packageName: string): Promise<[string]> {
+export async function spawnProcess(packageName: string): Promise<void> {
     try {
-        if (!device) device = await frida.getUsbDevice();
-        const pid = await device.spawn(packageName);
-        session = await device.attach(pid);
-        const agent = await session.createScript(readFileSync(agentPath, "utf8"));
-        await agent.load();
-        await device.resume(pid);
-        session?.detached.connect(() => {
-            session = null;
-            return [`[*] Detached from ${packageName}`]
+        if (!device.value) device.value = await frida.getUsbDevice();
+        const pid = await device.value.spawn(packageName);
+        session.value = await device.value.attach(pid);
+        agent.value = await session.value.createScript(readFileSync(agentPath, "utf8"));
+        await agent.value.load();
+        await device.value.resume(pid);
+        emit("attach", pid);
+        session.value.detached.connect(() => {
+            session.value = null;
+            agent.value = null;
+            emit("detach", pid);
+            log(`[*] Detached from ${packageName}`);
         })
-        return [`[*] Spawned ${packageName} with pid ${pid}`];
+        log(`[*] Spawned ${packageName} with pid ${pid}`);
     } catch (error) {
-        return [`[*] Failed to spawn ${packageName}: ${error}`];
+        log(`[*] Failed to spawn ${packageName}: ${error}`);
+    }
+}
+
+// 프로세스 Detach
+export async function detachProcess(): Promise<void> {
+    try {
+        if (session.value) {
+            await session.value.detach();
+            session.value = null;
+            agent.value = null;
+        } else {
+            log(`[*] No session to detach.`);
+        }
+    } catch (error) {
+        log(`[*] Failed to detach: ${error}`);
     }
 }
