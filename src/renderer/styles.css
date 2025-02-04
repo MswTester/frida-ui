@@ -138,3 +138,8 @@ button:disabled, input:disabled, textarea:disabled, select:disabled, a:disabled{
     cursor: not-allowed;
     opacity: 0.5;
 }
+
+option{
+    color: var(--content);
+    background-color: var(--background);
+}

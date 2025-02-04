@@ -19,3 +19,6 @@ export async function spawnProcess(packageName: string): Promise<void> {
 export async function detachProcess(): Promise<void> {
     return await window.API.detachProcess();
 }
+export async function killProcess(): Promise<void> {
+    return await window.API.killProcess();
+}

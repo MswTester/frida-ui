@@ -1,11 +1,25 @@
 import React from "react"
-import Header from "renderer/components/header"
-import { Container } from "renderer/components/ui/primitives"
+import Scan from "renderer/components/scan"
+import { Container, Select } from "renderer/components/ui/primitives"
 
 const Memory = () => {
-    return <Container>
-        <Header />
-        
+    const [memoryTab, setMemoryTab] = React.useState<string>("scan")
+    return <Container $gap="xs">
+        <Select
+            $width="full"
+            $size='caption' $padding="xs" $border="1px solid outline" $rounded="xs"
+            value={memoryTab} onChange={e => setMemoryTab(e.target.value)}
+        >
+            <option value="scan">Scan</option>
+            <option value="view">View</option>
+            <option value="range">Ranges & Modules</option>
+            <option value="compare">Compare</option>
+            <option value="patch">Patch</option>
+        </Select>
+        {
+            memoryTab === "scan" ? <Scan />:
+            <></>
+        }
     </Container>
 }
 

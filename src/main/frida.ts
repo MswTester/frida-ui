@@ -11,7 +11,35 @@ const agentPath = path.join(__dirname, "../public", "agent.js");
 
 let device: Observable<frida.Device | null> = new Observable(null);
 let session: Observable<frida.Session | null> = new Observable(null);
-let agent: Observable<frida.Script | null> = new Observable(null);
+export let agent: Observable<frida.Script | null> = new Observable(null);
+
+device.onChange((prev, next) => {
+    log(`[*] Device changed -> ${next?.id}`);
+})
+
+agent.onChange((prev, next) => {
+    if(prev) prev.message.disconnect(() => {});
+    next?.message.connect((message:frida.Message, data) => {
+        if (message.type === 'send') {
+            const [channel, ...args] = message.payload;
+            emit(channel, ...args);
+        } else if (message.type === 'error') {
+            log(`[*] ${message.type}: ${message.description}`);
+        }
+    })
+})
+
+export async function evaluate(code:string) {
+    try {
+        if (agent.value) {
+            await agent.value.exports.eval(code);
+        } else {
+            log(`[*] No agent to evaluate code.`);
+        }
+    } catch (error) {
+        log(`[*] Code Error: ${error}`);
+    }
+}
 
 // 실행 중인 프로세스 목록 가져오기
 export async function getProcessList(): Promise<[string, number][]> {
@@ -93,5 +121,23 @@ export async function detachProcess(): Promise<void> {
         }
     } catch (error) {
         log(`[*] Failed to detach: ${error}`);
+    }
+}
+
+// 프로세스 Kill
+export async function killProcess(): Promise<void> {
+    try {
+        if (!device.value) device.value = await frida.getUsbDevice();
+        if(session.value) {
+            const pid = session.value.pid;
+            await device.value.kill(pid);
+            session.value = null;
+            agent.value = null;
+            log(`[*] Killed ${pid}`);
+        } else {
+            log(`[*] No session to kill.`);
+        }
+    } catch (error) {
+        log(`[*] Failed to kill: ${error}`);
     }
 }

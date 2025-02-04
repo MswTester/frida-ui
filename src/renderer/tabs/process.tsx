@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Button, Container, Input, Row } from 'renderer/components/ui/primitives';
-import Switch from 'renderer/components/ui/switch';
 import { attachProcess, getInstalledPackages, getProcessList, spawnProcess } from 'renderer/fridaClient';
 
 const Process = () => {
@@ -37,8 +36,10 @@ const Process = () => {
 
     const handleExecute = async () => {
         if (type === 'process') {
+            if (selectedProcess === null) return;
             await attachProcess(selectedProcess!);
         } else {
+            if (selectedApplication === null) return;
             await spawnProcess(selectedApplication!);
         }
     }
@@ -46,6 +47,12 @@ const Process = () => {
     useEffect(() => {
         setSelectedProcess(null);
         setSelectedApplication(null);
+        if (processes.filter(([name, _]) => name.toLowerCase().includes(search.toLowerCase())).length === 1) {
+            setSelectedProcess(processes.find(([name, _]) => name.toLowerCase().includes(search.toLowerCase()))![1]);
+        }
+        if (applications.filter(([identifier, _]) => identifier.toLowerCase().includes(search.toLowerCase())).length === 1) {
+            setSelectedApplication(applications.find(([identifier, _]) => identifier.toLowerCase().includes(search.toLowerCase()))![0]);
+        }
     }, [search])
 
     return <Container $gap='xs'>
@@ -54,6 +61,7 @@ const Process = () => {
                 $rounded='xs 0 0 0'
                 $padding='sm'
                 $width='full'
+                $size='caption'
                 $border={type === 'process' ? '1px solid outline' : ''}
                 onClick={handleProcessList}
             >
@@ -63,14 +71,14 @@ const Process = () => {
                 $rounded='0 xs 0 0'
                 $padding='sm'
                 $width='full'
+                $size='caption'
                 $border={type === 'application' ? '1px solid outline' : ''}
                 onClick={handleApplicationList}
             >
                 Applications
             </Button>
         </Row>
-        <Box $border='1px solid outline' $width='full' $height='80%'
-            $padding='sm'>
+        <Box $border='1px solid outline' $width='full' $padding='sm' $height='80%'>
             <Container $scroll>
                 {
                     type === 'process' ? processes.filter(
@@ -80,6 +88,7 @@ const Process = () => {
                             $width='full'
                             $padding='sm'
                             $border='1px solid outline'
+                            $size='caption'
                             $background={selectedProcess === pid ? 'primary' : ''}
                             $color={selectedProcess === pid ? 'white' : ''}
                             key={i}
@@ -111,13 +120,16 @@ const Process = () => {
                 $rounded='0 0 0 xs'
                 $border='1px solid outline'
                 $padding='sm'
+                $size='caption'
                 placeholder='Search' value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && search.trim() && handleExecute()}
             />
             <Button
                 $rounded='0 0 xs 0'
                 $border='1px solid outline'
                 $padding='sm'
+                $size='caption'
                 onClick={handleExecute}
                 disabled={type === 'process' ? selectedProcess === null : selectedApplication === null}
             >{type === 'process' ? 'Attach' : 'Spawn'}</Button>

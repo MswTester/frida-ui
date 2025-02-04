@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components';
 import { cvt } from '../../utils/styler';
 
-interface IPaddingMarginMixin {
+export interface IPaddingMarginMixin {
     $padding?: string;
     $margin?: string;
     $pt?: string;
@@ -14,7 +14,7 @@ interface IPaddingMarginMixin {
     $ml?: string;
 }
 
-const paddingMarginMixin = css<IPaddingMarginMixin>`
+export const paddingMarginMixin = css<IPaddingMarginMixin>`
     padding: ${p => cvt(p.$padding || '')};
     margin: ${p => cvt(p.$margin || '')};
     padding-top: ${p => cvt(p.$pt || '')};
@@ -27,17 +27,25 @@ const paddingMarginMixin = css<IPaddingMarginMixin>`
     margin-left: ${p => cvt(p.$ml || '')};
 `;
 
-interface ISizeMixin {
+export interface ISizeMixin {
     $width?: string;
     $height?: string;
+    $minWidth?: string;
+    $minHeight?: string;
+    $maxWidth?: string;
+    $maxHeight?: string;
 }
 
-const sizeMixin = css<ISizeMixin>`
+export const sizeMixin = css<ISizeMixin>`
     width: ${p => cvt(p.$width || 'auto')};
     height: ${p => cvt(p.$height || 'auto')};
+    min-width: ${p => cvt(p.$minWidth || '')};
+    min-height: ${p => cvt(p.$minHeight || '')};
+    max-width: ${p => cvt(p.$maxWidth || '')};
+    max-height: ${p => cvt(p.$maxHeight || '')};
 `;
 
-interface ICommonStyleMixin {
+export interface ICommonStyleMixin {
     $color?: string;
     $size?: string;
     $weight?: string;
@@ -50,7 +58,7 @@ interface ICommonStyleMixin {
     $rounded?: string;
 }
 
-const commonStyleMixin = css<ICommonStyleMixin>`
+export const commonStyleMixin = css<ICommonStyleMixin>`
     color: ${p => cvt(p.$color || 'content')};
     font-size: ${p => cvt(p.$size || 'body')};
     font-weight: ${p => cvt(p.$weight || '400')};
@@ -63,14 +71,14 @@ const commonStyleMixin = css<ICommonStyleMixin>`
     border-radius: ${p => cvt(p.$rounded || '')};
 `;
 
-interface IFlexMixin {
+export interface IFlexMixin {
     $justify?: "flex-start" | "flex-end" | "center" | "space-between" | "space-around" | "space-evenly" | string;
     $items?: "flex-start" | "flex-end" | "center" | "baseline" | "stretch" | string;
     $wrap?: "nowrap" | "wrap" | "wrap-reverse" | string;
     $gap?: string;
 }
 
-const flexMixin = css<IFlexMixin>`
+export const flexMixin = css<IFlexMixin>`
     display: flex;
     justify-content: ${p => cvt(p.$justify || 'center')};
     align-items: ${p => cvt(p.$items || 'center')};
@@ -184,6 +192,8 @@ const Container = styled(Div)<{
     $rounded?: string;
     $wrap?: boolean;
     $height?: string;
+    $minHeight?: string;
+    $maxHeight?: string;
 }>`
     display: flex;
     flex-direction: ${p => p.$wrap ? 'row' : 'column'};
@@ -198,7 +208,8 @@ const Container = styled(Div)<{
     width: 100%;
     height: ${p => cvt(p.$height || '100%')};
     max-width: 100%;
-    max-height: 100%;
+    min-height: ${p => cvt(p.$minHeight || 'auto')};
+    max-height: ${p => cvt(p.$maxHeight || '100%')};
     flex: 1;
 `;
 

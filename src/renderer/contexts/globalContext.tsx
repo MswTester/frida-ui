@@ -21,7 +21,9 @@ const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
     }, [])
 
     return (
-        <GlobalContext.Provider value={{ log, setLog, tab, setTab, session }}>
+        <GlobalContext.Provider value={{
+            log, setLog, tab, setTab, session,
+        }}>
             {children}
         </GlobalContext.Provider>
     );

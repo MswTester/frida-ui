@@ -12,15 +12,15 @@ class Observable<T> {
         return this._value;
     }
 
-    set value(newValue: T) {
-        if (this._value !== newValue) {
-            const oldValue = this._value;
-            this._value = newValue;
-            this.eventEmitter.emit("change", newValue, oldValue);
+    set value(next: T) {
+        if (this._value !== next) {
+            const prev = this._value;
+            this._value = next;
+            this.eventEmitter.emit("change", prev, next);
         }
     }
 
-    onChange(callback: (newValue: T, oldValue: T) => void) {
+    onChange(callback: (prev: T, next: T) => void) {
         this.eventEmitter.on("change", callback);
     }
 }

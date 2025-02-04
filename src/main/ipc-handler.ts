@@ -1,5 +1,9 @@
 import { ipcMain } from "electron";
-import { attachProcess, detachProcess, getInstalledPackages, getProcessList, spawnProcess } from "./frida";
+import { agent, attachProcess, detachProcess, evaluate, getInstalledPackages, getProcessList, killProcess, spawnProcess } from "./frida";
+
+ipcMain.handle("eval", async (_event, code:string) => {
+    return await evaluate(code);
+});
 
 ipcMain.handle("get-process-list", async (_event) => {
     return await getProcessList();
@@ -15,4 +19,16 @@ ipcMain.handle("spawn-process", async (_event, packageName) => {
 });
 ipcMain.handle("detach-process", async (_event) => {
     return await detachProcess();
+});
+ipcMain.handle("kill-process", async (_event) => {
+    return await killProcess();
+});
+
+ipcMain.on("read-memory", async (_event, address, type) => {
+    if (!agent.value) return null;
+    return agent.value.exports.readMemory(address, type);
+});
+ipcMain.on("get-memory-protect", async (_event, address) => {
+    if (!agent.value) return null;
+    return agent.value.exports.getMemoryProtect(address);
 });
