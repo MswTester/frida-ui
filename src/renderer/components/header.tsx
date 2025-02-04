@@ -3,8 +3,10 @@ import { Button, Row, Text } from './ui/primitives'
 import { useGlobal } from 'renderer/contexts/globalContext'
 import { detachProcess } from 'renderer/fridaClient'
 
+const tabs = ["memory", "hooking", "interceptor", ""]
+
 const Header = () => {
-    const {session} = useGlobal()
+    const {session, setTab} = useGlobal()
 
     const handleDetach = () => {
         detachProcess()
