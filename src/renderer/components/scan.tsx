@@ -62,4 +62,4 @@ const Scan = () => {
     </Column>
 }
 
-export default Scan
+export default Scan;
