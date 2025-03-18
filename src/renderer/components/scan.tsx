@@ -14,7 +14,12 @@ const Scan = () => {
     const [scan, setScan] = useState<string>("")
     const [scantype, setScanType] = useState<string>("Byte")
 
-    const firstScan = () => {
+    const handleScan = () => {
+        if (scanlist.length) {
+            // Next Scan
+        } else {
+            window.API
+        }
     }
 
     return <Column $gap="xs" $height='full'>
@@ -44,10 +49,14 @@ const Scan = () => {
             disabled={scanlist.length == 0}>Next Scan</Button>
         </Row>
         <Row $gap='xs'>
-            <Button $size='caption' $padding='xs' $border='1px solid outline' $rounded='xs'>
+            <Button $size='caption' $padding='xs' $border='1px solid outline' $rounded='xs'
+                disabled={scanHistory.length == 0}
+            >
                 <UndoIcon />
             </Button>
-            <Button $size='caption' $padding='xs' $border='1px solid outline' $rounded='xs'>
+            <Button $size='caption' $padding='xs' $border='1px solid outline' $rounded='xs'
+                disabled={scanHistory.length == 0}
+            >
                 <RedoIcon />
             </Button>
             <Button $size='caption' $padding='xs' $border='1px solid outline' $rounded='xs'>

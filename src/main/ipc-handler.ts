@@ -32,3 +32,25 @@ ipcMain.on("get-memory-protect", async (_event, address) => {
     if (!agent.value) return null;
     return agent.value.exports.getMemoryProtect(address);
 });
+
+ipcMain.handle("get-ranges", async (_event) => {
+    if (!agent.value) return null;
+    return agent.value.exports.getRanges();
+});
+ipcMain.handle("get-modules", async (_event) => {
+    if (!agent.value) return null;
+    return agent.value.exports.getModules();
+});
+
+ipcMain.handle("scan-ranges", async (_event, idxs, pattern) => {
+    if (!agent.value) return null;
+    return agent.value.exports.scanRanges(idxs, pattern);
+});
+ipcMain.handle("scan-modules", async (_event, idxs, pattern) => {
+    if (!agent.value) return null;
+    return agent.value.exports.scanModules(idxs, pattern);
+});
+ipcMain.handle("next-scan", async (_event, ptrs, pattern) => {
+    if (!agent.value) return null;
+    return agent.value.exports.nextScan(ptrs, pattern);
+});

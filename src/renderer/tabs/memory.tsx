@@ -1,4 +1,5 @@
 import React from "react"
+import Range from "renderer/components/range"
 import Scan from "renderer/components/scan"
 import { Container, Select } from "renderer/components/ui/primitives"
 
@@ -18,6 +19,10 @@ const Memory = () => {
         </Select>
         {
             memoryTab === "scan" ? <Scan />:
+            memoryTab === "view" ? <></>:
+            memoryTab === "range" ? <Range />:
+            memoryTab === "compare" ? <></>:
+            memoryTab === "patch" ? <></>:
             <></>
         }
     </Container>

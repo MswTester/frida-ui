@@ -13,4 +13,11 @@ contextBridge.exposeInMainWorld("API", {
 
     readMemory: (address: string, type: number) => ipcRenderer.invoke("read-memory", address, type),
     getMemoryProtect: (address: string) => ipcRenderer.invoke("get-memory-protect", address),
+
+    getRanges: () => ipcRenderer.invoke("get-ranges"),
+    getModules: () => ipcRenderer.invoke("get-modules"),
+
+    scanRanges: (idxs: number[], pattern: string) => ipcRenderer.invoke("scan-ranges", idxs, pattern),
+    scanModules: (idxs: number[], pattern: string) => ipcRenderer.invoke("scan-modules", idxs, pattern),
+    nextScan: (ptrs: string[], pattern: string) => ipcRenderer.invoke("next-scan", ptrs, pattern),
 });
